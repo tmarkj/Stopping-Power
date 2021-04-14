@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.integrate import cumtrapz
 from scipy import interpolate
+import os
 
 class Stopping_power:
     """
@@ -24,8 +25,9 @@ class Stopping_power:
         self.filter_material = filter_material
 
         # The SRIM output tables are stored in the Tables/ directory
+        module_dir = os.path.dirname(os.path.realpath(__file__))
         SRIM_file = f"Tables/{ion}_in_{filter_material}"
-        raw_SRIM_data = np.genfromtxt(SRIM_file, skip_header = 4) 
+        raw_SRIM_data = np.genfromtxt(f"{module_dir}/{SRIM_file}", skip_header = 4) 
         
         self.ion_E = np.asarray(raw_SRIM_data[:,0], dtype=float)/1e3 # MeV
         elec_dEdx = np.asarray(raw_SRIM_data[:,1], dtype=float)
