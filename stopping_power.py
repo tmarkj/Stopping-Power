@@ -3,6 +3,29 @@ from scipy.integrate import cumtrapz
 from scipy import interpolate
 import os
 
+    
+def get_centered_from_edge(edge_array):
+
+    dx = edge_array[1] - edge_array[0]
+    centered_array = []
+
+    for i in range(len(edge_array) - 1):
+        centered_array.append(edge_array[i] + dx/2)
+
+    return np.asarray(centered_array)
+
+
+def get_edges_from_centered(center_array):
+
+    dx = center_array[1] - center_array[0]
+    edge_array = [center_array[0] - dx/2]
+
+    for i in range(len(center_array)):
+        edge_array.append(center_array[i] + dx/2)
+
+    return np.array(edge_array)
+
+
 class Stopping_power:
     """
     Class for doing stopping power calculations.
@@ -61,11 +84,29 @@ class Stopping_power:
             The energy of the particle after it passes through the material.
             Units of MeV.
         """
-        if thickness >= self.range(E_in):
-            print(f"Range of {E_in:.3f} MeV {self.ion} in {self.filter_material} is less than the thickness! Particle is ranged out.")
-            return np.nan
+
+        ## So the code can handle array an non-array input
+        not_array = False
+        E_in_array = np.array(E_in)
+        if E_in_array.shape == ():
+            not_array = True
+            E_in_array = np.array([E_in])
+
+        ## Keep track of which parts get ranged out and give NaN
+        ranged_out_indices = np.argwhere(thickness >= self.range(E_in_array))
+        good_indices = np.where(thickness < self.range(E_in_array))
+        if len(ranged_out_indices) > 0:
+            print(f"Range of {self.ion} in {self.filter_material} is less than the thickness! Particle is ranged out.")
+
+        E_out = np.zeros(E_in_array.shape)
+        E_out[good_indices] = self.interp_energy(self.interp_range(E_in_array[good_indices]) - thickness)
+        E_out[ranged_out_indices] = np.nan
+
+        ## Return the same type as the input (array or not array)
+        if not_array:
+            return E_out[0]
         else:
-            return self.interp_energy(self.interp_range(E_in) - thickness)
+            return E_out
 
     def E_in(self, E_out, thickness):
         """
@@ -105,3 +146,70 @@ class Stopping_power:
             um.
         """
         return self.interp_range(E)
+
+    def E_out_spectrum(self, E_in_array, yields_in_array, thickness):
+        """
+        Finds the spectrum after the particles passed through the material.
+
+        Parameters
+        ----------
+        E_in_array : array of floats (numpy array)
+            The energy array for the spectrum. MeV units.
+
+        yields_in_array : array of floats (numpy array)
+            The array of yields per MeV of the in spectrum.
+
+        Returns
+        -------
+        E_out_array : array of floats (numpy array)
+            The energy of the out spectrum. MeV units.
+
+        yields_out_array : array of floats (numpy array)
+            The array of yields per MeV of the out spectrum .
+
+        """
+
+        E_in_array_edges = get_edges_from_centered(E_in_array)
+        E_out_array_edges = self.E_out(E_in_array_edges, thickness)
+
+        dE_in_array = np.diff(E_in_array_edges)
+        dE_out_array = np.diff(E_out_array_edges)
+
+        yields_out_array = yields_in_array*dE_in_array/dE_out_array
+        E_out_array = get_centered_from_edge(E_out_array_edges)
+
+        return E_out_array, yields_out_array 
+
+        
+    def E_in_spectrum(self, E_out_array, yields_out_array, thickness):
+        """
+        Finds the spectrum before the particles passed through the material.
+
+        Parameters
+        ----------
+        E_out_array : array of floats (numpy array)
+            The energy array for the spectrum. MeV units.
+
+        yields_out_array : array of floats (numpy array)
+            The array of yields per MeV of the in spectrum.
+
+        Returns
+        -------
+        E_in_array : array of floats (numpy array)
+            The energy of the in spectrum. MeV units.
+
+        yields_in_array : array of floats (numpy array)
+            The array of yields per MeV of the in spectrum .
+
+        """
+
+        E_out_array_edges = get_edges_from_centered(E_out_array)
+        E_in_array_edges = self.E_in(E_out_array_edges, thickness)
+
+        dE_out_array = np.diff(E_out_array_edges)
+        dE_in_array = np.diff(E_in_array_edges)
+
+        yields_in_array = yields_out_array*dE_out_array/dE_in_array
+        E_in_array = get_centered_from_edge(E_in_array_edges)
+
+        return E_in_array, yields_in_array 
