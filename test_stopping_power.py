@@ -21,3 +21,12 @@ E_in  = np.linspace(.4, 4, 10)
 
 E_out_array_Ta = H_in_Ta.E_out(E_in, 10)
 print(E_out_array_Ta)
+
+print(H_in_Ta.range(20.0))
+print("3.3", H_in_Ta.range(3.3))
+print("3.314", H_in_Ta.range(3.314))
+print("3.35", H_in_Ta.range(3.35))
+print("E_in 3.5 thickness 10: ", H_in_Ta.E_out(3.5, 10))
+
+H_in_Al = stopping_power.Stopping_power('H', 'Al')
+print("Aluminum 3.5", H_in_Al.range(3.5))
