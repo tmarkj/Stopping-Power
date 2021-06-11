@@ -96,7 +96,9 @@ class Stopping_power:
         ranged_out_indices = np.argwhere(thickness >= self.range(E_in_array))
         good_indices = np.where(thickness < self.range(E_in_array))
         if len(ranged_out_indices) > 0:
-            print(f"Range of {self.ion} in {self.filter_material} is less than the thickness! Particle is ranged out.")
+            #print(f"Range of {self.ion} in {self.filter_material} is less than the thickness! Particle is ranged out.")
+            pass
+
 
         E_out = np.zeros(E_in_array.shape)
         E_out[good_indices] = self.interp_energy(self.interp_range(E_in_array[good_indices]) - thickness)
@@ -172,10 +174,18 @@ class Stopping_power:
         E_in_array_edges = get_edges_from_centered(E_in_array)
         E_out_array_edges = self.E_out(E_in_array_edges, thickness)
 
+        E_out_array_edges[np.isnan(E_out_array_edges)] = 0
+        first_non_zero_energy = np.argmax(E_out_array_edges > 0.05) # since the stopping power below 5 keV isn't in the files
+
         dE_in_array = np.diff(E_in_array_edges)
         dE_out_array = np.diff(E_out_array_edges)
+        dE_out_array[:first_non_zero_energy] = 1000000000
 
         yields_out_array = yields_in_array*dE_in_array/dE_out_array
+        #yields_out_array[yields_out_array == np.infty] = 0
+        #yields_out_array[first_non_zero_energy-1] = 0
+        #yields_out_array[first_non_zero_energy] = 0
+        #yields_out_array[first_non_zero_energy+1] = 0
         E_out_array = get_centered_from_edge(E_out_array_edges)
 
         return E_out_array, yields_out_array 
