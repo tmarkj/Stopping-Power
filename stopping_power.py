@@ -175,7 +175,7 @@ class Stopping_power:
         E_out_array_edges = self.E_out(E_in_array_edges, thickness)
 
         E_out_array_edges[np.isnan(E_out_array_edges)] = 0
-        first_non_zero_energy = np.argmax(E_out_array_edges > 0.05) # since the stopping power below 5 keV isn't in the files
+        first_non_zero_energy = np.argmax(E_out_array_edges > 0.005) # since the stopping power below 5 keV isn't in the files
 
         dE_in_array = np.diff(E_in_array_edges)
         dE_out_array = np.diff(E_out_array_edges)
