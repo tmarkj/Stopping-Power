@@ -27,4 +27,13 @@ double E_out(struct Stopping_power * stop_pow_struct, double E_in, double thickn
 
 double E_in(struct Stopping_power * stop_pow_struct, double E_out, double thickness);
 
+void get_centered_from_edge(double * edge_array, double * centered_array, int edge_len);
+
+void get_edge_from_centered(double * centered_array, double * edge_array, int center_len);
+
+void diff_stop(double * in_array, double * out_array, int in_len);
+
+void E_out_spectrum(struct Stopping_power * stop_pow_struct, double * E_in_array, double * E_out_array,
+	double * yield_in_array, double * yield_out_array, double thickness, int len);
+
 #endif

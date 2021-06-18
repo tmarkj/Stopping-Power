@@ -101,8 +101,7 @@ double E_out(struct Stopping_power * stop_pow_struct, double E_in, double thickn
 	double range_at_E_in = interp1d(stop_pow_struct->energy_array, stop_pow_struct->range, E_in, TABLE_LENGTH);
 
 	if (range_at_E_in < thickness){
-		printf("Particle will be ranged out. Range is less than thickness.");
-		return -1;
+		return 0;
 	}
 
 	return interp1d(stop_pow_struct->range, stop_pow_struct->energy_array, range_at_E_in - thickness, TABLE_LENGTH);
@@ -113,4 +112,90 @@ double E_in(struct Stopping_power * stop_pow_struct, double E_out, double thickn
 
 	return interp1d(stop_pow_struct->range, stop_pow_struct->energy_array, range_at_E_out + thickness, TABLE_LENGTH);
 }
+
+
+void get_centered_from_edge(double * edge_array, double * centered_array, int edge_len){
+
+	double dx = edge_array[1] - edge_array[0];
+
+	for (int i = 0; i < edge_len - 1; ++i) {
+		centered_array[i] = edge_array[i] + dx/2.0;
+	}
+}
+
+void get_edge_from_centered(double * centered_array, double * edge_array, int center_len){
+	
+	double dx = centered_array[1] - centered_array[0];
+	edge_array[0] = centered_array[0] - dx/2.0;
+
+	for (int i = 0; i < center_len; ++i){
+		edge_array[i+1] = centered_array[i] + dx/2.0;
+	}
+
+}
+
+void diff_stop(double * in_array, double * out_array, int in_len){
+	// Note that lengths of the arrays are different!
+	// in_array is len n, but out_array is len n-1 
+	// It also has the property that for the first non-zero diff,
+	// it will make that a large number.
+	// This is purely for stopping power weirdness purposes
+	// so don't use this for anything else
+
+	for (int i = 0; i < in_len - 1; ++i){
+		if ((in_array[i+1] != 0.0) && (in_array[i] == 0.0) ) {
+			out_array[i] = 1e10;
+		} else {
+			out_array[i] = in_array[i+1] - in_array[i];		
+		}
+	}
+
+}
+
+
+void E_out_spectrum(struct Stopping_power * stop_pow_struct, double * E_in_array, double * E_out_array, 
+							double * yield_in_array, double * yield_out_array, double thickness, int len){	
+
+	double E_out_value;
+	int index_first_valid_energy;
+
+	double * E_in_array_edge = (double *) malloc((len+1)*sizeof(double));
+	get_edge_from_centered(E_in_array, E_in_array_edge, len);
+
+	double * E_out_array_edge = (double *) malloc((len+1)*sizeof(double));
+	
+	for (int i = 0; i < len + 1; ++i) {
+		E_out_value = E_out(stop_pow_struct, E_in_array_edge[i], thickness);
+
+		// Check to see if the E_out is valid
+		if (E_out_value < .005) E_out_value = 0;
+			
+		E_out_array_edge[i] = E_out_value; 
+	}
+
+	double * dE_in_array = (double *)malloc(len*sizeof(double));
+	double * dE_out_array = (double *)malloc(len*sizeof(double));
+
+	diff_stop(E_in_array_edge, dE_in_array, len+1);
+	diff_stop(E_out_array_edge, dE_out_array, len+1);
+
+	for (int i = 0; i < len; ++i){
+		if (dE_out_array[i] == 0.0) {
+			yield_out_array[i] = 0.0;
+		} else{
+			yield_out_array[i] = yield_in_array[i]*dE_in_array[i]/dE_out_array[i];
+		}
+	}
+
+	get_centered_from_edge(E_out_array_edge, E_out_array, len+1);
+
+
+	free(E_in_array_edge);
+	free(E_out_array_edge);
+	free(dE_in_array);
+	free(dE_out_array);
+
+
+}
+
 

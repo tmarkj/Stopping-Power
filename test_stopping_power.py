@@ -30,3 +30,8 @@ print("E_in 3.5 thickness 10: ", H_in_Ta.E_out(3.5, 10))
 
 H_in_Al = stopping_power.Stopping_power('H', 'Al')
 print("Aluminum 3.5", H_in_Al.range(3.5))
+
+E_in_array = [2.8,2.9,3.0,3.1,3.2]
+yield_in_array = [.25,.75,1.5,.75,.25]
+
+print(H_in_Al.E_out_spectrum(E_in_array, yield_in_array, 75.0))
