@@ -2,6 +2,8 @@
 #define STOPPING_POWER_H
 
 #define TABLE_LENGTH 1000
+#define TABLE_PATH "/mnt/c/Users/tmarkj/Dropbox (MIT)/Research/CR39 Data/SRIM/Stopping_power"
+
 static const unsigned int HEADER_SIZE = 4;
 
 struct Stopping_power {

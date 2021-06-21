@@ -13,7 +13,7 @@ int read_table(char* ion, char* filter_material, double* energy, double* stop_po
 	char *energy_in, *nuc_pow_in, *ele_pow_in;
 	const char* delimiter = "   ";
 
-	snprintf(filepath, sizeof(filepath), "Tables/%s_in_%s", ion, filter_material);
+	snprintf(filepath, sizeof(filepath), "%s/Tables/%s_in_%s", TABLE_PATH, ion, filter_material);
 
 	FILE * file = fopen(filepath, "r");
 	
