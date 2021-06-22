@@ -91,6 +91,7 @@ double interp1d(double * x_array, double* y_array, double x_point, int length){
 int initialize_stopping_power(struct Stopping_power * stop_pow_struct){
 
 	read_table(stop_pow_struct->ion, stop_pow_struct->filter_material, stop_pow_struct->energy_array, stop_pow_struct->stop_pow);
+	range_cumtrapz(stop_pow_struct->range, stop_pow_struct->energy_array, stop_pow_struct->stop_pow, TABLE_LENGTH);
 
 	return 1;	
 
