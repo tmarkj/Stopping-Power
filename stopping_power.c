@@ -64,19 +64,36 @@ double interp1d(double * x_array, double* y_array, double x_point, int length){
 
 	// Check to see if value is within the array
 	// This assumes that x_array is monotonically increasing (as it should be!)
-	// Could use a binary search to make this faster but I'm incompetent
 	if (x_point < x_array[0] || x_point > x_array[length-1]){
 		printf("Interpolation error! Outside the range of the x array.\n");
 		printf("min %f \t max %f \t point %f \n", x_array[0], x_array[length], x_point);
 		return -1;
 	}
 
-	for (int i = 0; i < length; ++i){
-		if (x_point > x_array[i]){
-			close_index = i;
+	// binary search for closest index
+
+	int q;
+	int r = length - 1;
+	int p = 0;
+
+	while (p <= r) {
+
+		q = (p+r)/2;
+
+		if (x_array[q] == x_point) {
+			p = r + 1;
+		} else if (x_array[q] > x_point) {
+			r = q - 1;
 		} else {
-			break;
+			p = q + 1;
 		}
+
+	}
+
+	if ((x_array[p] - x_point) < (x_point - x_array[r])) {
+		close_index = p;
+	} else {
+		close_index = r;
 	}
 
 	double slope = (y_array[close_index+1] - y_array[close_index])/(x_array[close_index+1] - x_array[close_index]);
