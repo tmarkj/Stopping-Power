@@ -5,7 +5,7 @@
 
 
 
-int read_table(char* ion, char* filter_material, double* energy, double* stop_pow) {
+int read_table(char * path_to_stop_pow, char* ion, char* filter_material, double* energy, double* stop_pow) {
 
 	char buf[128];
 	char filepath[128];
@@ -13,7 +13,7 @@ int read_table(char* ion, char* filter_material, double* energy, double* stop_po
 	char *energy_in, *nuc_pow_in, *ele_pow_in;
 	const char* delimiter = "   ";
 
-	snprintf(filepath, sizeof(filepath), "%s/Tables/%s_in_%s", TABLE_PATH, ion, filter_material);
+	snprintf(filepath, sizeof(filepath), "%s/Tables/%s_in_%s", path_to_stop_pow, ion, filter_material);
 
 	FILE * file = fopen(filepath, "r");
 	
@@ -65,7 +65,7 @@ double interp1d(double * x_array, double* y_array, double x_point, int length){
 	// Check to see if value is within the array
 	// This assumes that x_array is monotonically increasing (as it should be!)
 	if (x_point < x_array[0] || x_point > x_array[length-1]){
-		printf("Interpolation error! Outside the range of the x array.\n");
+		printf("Stoping power interpolation error! Outside the range of the x array.\n");
 		printf("min %f \t max %f \t point %f \n", x_array[0], x_array[length], x_point);
 		return -1;
 	}
@@ -105,9 +105,10 @@ double interp1d(double * x_array, double* y_array, double x_point, int length){
 
 
 
-int initialize_stopping_power(struct Stopping_power * stop_pow_struct){
+int initialize_stopping_power(struct Stopping_power * stop_pow_struct, char * path_to_stop_pow){
 
-	read_table(stop_pow_struct->ion, stop_pow_struct->filter_material, stop_pow_struct->energy_array, stop_pow_struct->stop_pow);
+	read_table(path_to_stop_pow, stop_pow_struct->ion, stop_pow_struct->filter_material, 
+		stop_pow_struct->energy_array, stop_pow_struct->stop_pow);
 	range_cumtrapz(stop_pow_struct->range, stop_pow_struct->energy_array, stop_pow_struct->stop_pow, TABLE_LENGTH);
 
 	return 1;	

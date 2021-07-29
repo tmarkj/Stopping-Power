@@ -2,7 +2,7 @@
 #define STOPPING_POWER_H
 
 #define TABLE_LENGTH 1000
-#define TABLE_PATH "/mnt/c/Users/tmarkj/Dropbox (MIT)/Research/CR39 Data/SRIM/Stopping_power"
+//#define TABLE_PATH "/mnt/c/Users/tmarkj/Dropbox (MIT)/Research/CR39 Data/SRIM/Stopping_power"
 
 static const unsigned int HEADER_SIZE = 4;
 
@@ -17,11 +17,11 @@ struct Stopping_power {
 };
 
 
-int read_table(char* ion, char* filter_material, double* energy, double* stop_pow);
+int read_table(char* path_to_stop_pow, char* ion, char* filter_material, double* energy, double* stop_pow);
 
 double interp1d(double * x_array, double* y_array, double x_point, int length);
 
-int initialize_stopping_power(struct Stopping_power * stop_pow_struct);
+int initialize_stopping_power(struct Stopping_power * stop_pow_struct, char* path_to_stop_pow);
 
 void range_cumtrapz(double* range, double* energy_array, double* stop_pow_array, int length);
 
