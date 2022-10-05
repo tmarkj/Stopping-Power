@@ -5,23 +5,36 @@ import os
 
     
 def get_centered_from_edge(edge_array):
-
+    """
     dx = edge_array[1] - edge_array[0]
     centered_array = []
 
     for i in range(len(edge_array) - 1):
         centered_array.append(edge_array[i] + dx/2)
+    """
+    dx = np.gradient(edge_array)
+    centered_array = []
+
+    for i in range(len(edge_array) - 1):
+        centered_array.append(edge_array[i] + dx[i]/2)
 
     return np.asarray(centered_array)
 
 
 def get_edges_from_centered(center_array):
-
+    """
     dx = center_array[1] - center_array[0]
     edge_array = [center_array[0] - dx/2]
 
     for i in range(len(center_array)):
         edge_array.append(center_array[i] + dx/2)
+    """
+
+    dx = np.gradient(center_array)
+    edge_array = [center_array[0] - dx[0]/2]
+
+    for i in range(len(center_array)):
+        edge_array.append(center_array[i] + dx[i]/2)
 
     return np.array(edge_array)
 
@@ -148,6 +161,27 @@ class Stopping_power:
             um.
         """
         return self.interp_range(E)
+
+    def thickness(self, E_in, E_out):
+        """
+        Finds the thickness that took particle from energy E_in to energy E_out 
+
+        Parameters
+        ----------
+        E_in : float
+            The energy of the ion into the material in MeV
+
+        E_out : float
+            The energy of the ion out of the material in MeV
+
+        Returns
+        -------
+        thickness : float
+            The thickness of material required for take energy E_in to energy E_out.
+            Units are um.
+        """
+        return self.interp_range(E_in) - self.interp_range(E_out)
+
 
     def E_out_spectrum(self, E_in_array, yields_in_array, thickness):
         """
