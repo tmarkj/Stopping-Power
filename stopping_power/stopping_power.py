@@ -74,8 +74,8 @@ class Stopping_power:
         # as a function of energy
         self.range_array = cumtrapz(1/net_dEdx, self.ion_E, initial=0.0)*1e3 #um
 
-        self.interp_range = interpolate.interp1d(self.ion_E, self.range_array)
-        self.interp_energy = interpolate.interp1d(self.range_array, self.ion_E)
+        self.interp_range = interpolate.interp1d(self.ion_E, self.range_array, bounds_error=False)
+        self.interp_energy = interpolate.interp1d(self.range_array, self.ion_E, bounds_error=False)
 
     def E_out(self, E_in, thickness):
         """
@@ -183,7 +183,7 @@ class Stopping_power:
         return self.interp_range(E_in) - self.interp_range(E_out)
 
 
-    def E_out_spectrum(self, E_in_array, yields_in_array, thickness):
+    def E_out_spectrum(self, E_in_array, yields_in_array, thickness, errorbars=None):
         """
         Finds the spectrum after the particles passed through the material.
 
