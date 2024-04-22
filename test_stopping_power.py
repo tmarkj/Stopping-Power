@@ -1,10 +1,15 @@
 #!/usr/bin/python3
 
-import stopping_power
+from stopping_power import stopping_power
 import numpy as np
+import matplotlib.pyplot as plt
 
 H_in_Ta = stopping_power.Stopping_power('H', 'Ta')
 H_in_Ni = stopping_power.Stopping_power('H', 'Ni')
+H_in_CR39 = stopping_power.Stopping_power('H', 'CR39')
+
+plt.loglog(*H_in_CR39.get_dEdx())
+plt.show()
 
 E_in = 3.0 #MeV
 

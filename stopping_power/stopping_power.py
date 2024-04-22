@@ -38,7 +38,6 @@ def get_edges_from_centered(center_array):
 
     return np.array(edge_array)
 
-
 class Stopping_power:
     """
     Class for doing stopping power calculations.
@@ -68,11 +67,11 @@ class Stopping_power:
         self.ion_E = np.asarray(raw_SRIM_data[:,0], dtype=float)/1e3 # MeV
         elec_dEdx = np.asarray(raw_SRIM_data[:,1], dtype=float)
         nuc_dEdx = np.asarray(raw_SRIM_data[:,2], dtype=float)
-        net_dEdx = elec_dEdx + nuc_dEdx
+        self.net_dEdx = elec_dEdx + nuc_dEdx
 
         # Integrate the stopping power to find the range of the particle
         # as a function of energy
-        self.range_array = cumtrapz(1/net_dEdx, self.ion_E, initial=0.0)*1e3 #um
+        self.range_array = cumtrapz(1/self.net_dEdx, self.ion_E, initial=0.0)*1e3 #um
 
         self.interp_range = interpolate.interp1d(self.ion_E, self.range_array, bounds_error=False)
         self.interp_energy = interpolate.interp1d(self.range_array, self.ion_E, bounds_error=False)
@@ -257,3 +256,6 @@ class Stopping_power:
         E_in_array = get_centered_from_edge(E_in_array_edges)
 
         return E_in_array, yields_in_array 
+
+    def get_dEdX(self):
+        return self.ion_E, self.net_dEdx
